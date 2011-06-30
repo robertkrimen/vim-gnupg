@@ -424,9 +424,17 @@ function s:GPGDecrypt()
   " we must redirect stderr (using shell temporarily)
 
   " If GPGPrimeAgent is set, then do pre-decryption with gpg-agent (in case of curses pinentry)
-  if (g:GPGPrimeAgent)
+  if (exists("g:GPGPrimeAgent") && g:GPGPrimeAgent == 1)
+    call s:GPGDebug(1, "decrypting (GPGPrime) file")
     let commandline = "!" . s:GPGCommand . ' --quiet --decrypt ' . shellescape(filename, 1) . ' ' . s:stderrredirnull . ' ' . s:stdoutredirnull
-    execute commandline
+    call s:GPGDebug(1, "command: " . commandline)
+    let &shellredir = s:shellredir
+    let &shell = s:shell
+    let &shelltemp = s:shelltemp
+    silent execute commandline
+    let &shellredir = s:shellredirsave
+    let &shell = s:shellsave
+    let &shelltemp = s:shelltempsave
     if (v:shell_error) " message could not be decrypted
         echohl GPGError
         let blackhole = input("Message could not be decrypted! (Press ENTER)")
