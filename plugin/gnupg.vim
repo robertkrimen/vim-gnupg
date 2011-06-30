@@ -266,6 +266,7 @@ function s:GPGInit()
     " unix specific settings
     let s:shellredir = ">%s 2>&1"
     let s:shell = '/bin/sh'
+    let s:stdoutredirnull = '1>/dev/null'
     let s:stderrredirnull = '2>/dev/null'
     let s:GPGCommand = "LANG=C LC_ALL=C " . s:GPGCommand
   else
@@ -421,6 +422,21 @@ function s:GPGDecrypt()
   " finally decrypt the buffer content
   " since even with the --quiet option passphrase typos will be reported,
   " we must redirect stderr (using shell temporarily)
+
+  " If GPGPreAgent is set, then do pre-decryption with gpg-agent (in case of curses pinentry)
+  if (g:GPGPreAgent)
+    let commandline = "!" . s:GPGCommand . ' --quiet --decrypt ' . shellescape(filename, 1) . ' ' . s:stderrredirnull . ' ' . s:stdoutredirnull
+    execute commandline
+    if (v:shell_error) " message could not be decrypted
+        echohl GPGError
+        let blackhole = input("Message could not be decrypted! (Press ENTER)")
+        echohl None
+        silent bwipeout!
+        call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGDecrypt()")
+        return
+    endif
+  endif
+
   call s:GPGDebug(1, "decrypting file")
   let commandline = "r !" . s:GPGCommand . ' --quiet --decrypt ' . shellescape(filename, 1) . ' ' . s:stderrredirnull
   call s:GPGDebug(1, "command: " . commandline)
