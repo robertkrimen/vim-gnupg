@@ -423,8 +423,8 @@ function s:GPGDecrypt()
   " since even with the --quiet option passphrase typos will be reported,
   " we must redirect stderr (using shell temporarily)
 
-  " If GPGPreAgent is set, then do pre-decryption with gpg-agent (in case of curses pinentry)
-  if (g:GPGPreAgent)
+  " If GPGPrimeAgent is set, then do pre-decryption with gpg-agent (in case of curses pinentry)
+  if (g:GPGPrimeAgent)
     let commandline = "!" . s:GPGCommand . ' --quiet --decrypt ' . shellescape(filename, 1) . ' ' . s:stderrredirnull . ' ' . s:stdoutredirnull
     execute commandline
     if (v:shell_error) " message could not be decrypted
