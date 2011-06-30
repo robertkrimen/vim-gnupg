@@ -1,3 +1,12 @@
+This is a fix to gnupg.vim that allows the use of gpg-agent with pinentry-curses
+
+If this fits your use case, then set ```g:GPGPrimeAgent``` to 1 in your ```.vimrc``` to
+enable priming of gpg-agent:
+
+    let g:GPGPrimeAgent = 1
+
+http://gitorious.org/vim-gnupg/vim-gnupg
+
 # vim-gnupg
 
 This script implements transparent editing of gpg encrypted files. The
