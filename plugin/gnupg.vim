@@ -426,7 +426,7 @@ function s:GPGDecrypt()
   " If GPGPrimeAgent is set, then do pre-decryption with gpg-agent (in case of curses pinentry)
   if (exists("g:GPGPrimeAgent") && g:GPGPrimeAgent == 1)
     call s:GPGDebug(1, "decrypting (GPGPrime) file")
-    let commandline = "!" . s:GPGCommand . ' --quiet --decrypt ' . shellescape(filename, 1) . ' ' . s:stderrredirnull . ' ' . s:stdoutredirnull
+    let commandline = "!" . s:GPGCommand . ' --quiet --list-packets ' . shellescape(filename, 1) . ' ' . s:stderrredirnull . ' ' . s:stdoutredirnull
     call s:GPGDebug(1, "command: " . commandline)
     let &shellredir = s:shellredir
     let &shell = s:shell
