@@ -376,10 +376,35 @@ function s:GPGDecrypt()
       echo
       echohl None
     endif
-  elseif (match(output, "gpg: public key is [[:xdigit:]]\\{8}") >= 0)
-    " file is asymmetric encrypted
+  elseif (match(output, "gpg: public key is [[:xdigit:]]\\{16}") >= 0)
+    " file is asymmetric encrypted (long key)
     let b:GPGEncrypted = 1
-    call s:GPGDebug(1, "this file is asymmetric encrypted")
+    call s:GPGDebug(1, "this file is asymmetric encrypted (long key)")
+
+    let b:GPGOptions += ["encrypt"]
+
+    " find the used public keys
+    let start = match(output, "gpg: public key is [[:xdigit:]]\\{16}")
+    while (start >= 0)
+      let start = start + strlen("gpg: public key is ")
+      let recipient = strpart(output, start, 16)
+      call s:GPGDebug(1, "recipient is " . recipient)
+      let name = s:GPGNameToID(recipient)
+      if (strlen(name) > 0)
+        let b:GPGRecipients += [name]
+        call s:GPGDebug(1, "name of recipient is " . name)
+      else
+        let b:GPGRecipients += [recipient]
+        echohl GPGWarning
+        echom "The recipient \"" . recipient . "\" is not in your public keyring!"
+        echohl None
+      end
+      let start = match(output, "gpg: public key is [[:xdigit:]]\\{16}", start)
+    endwhile
+  elseif (match(output, "gpg: public key is [[:xdigit:]]\\{8}") >= 0)
+    " file is asymmetric encrypted (short key)
+    let b:GPGEncrypted = 1
+    call s:GPGDebug(1, "this file is asymmetric encrypted (short key)")
 
     let b:GPGOptions += ["encrypt"]
 
